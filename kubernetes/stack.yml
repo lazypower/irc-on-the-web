@@ -1,0 +1,63 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: irc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: weechat
+    spec:
+      containers:
+      - image: lazypower/weechat
+        name: weechat
+        env:
+          - name: PASSWORD
+            value: super-secret-password
+        tty: true
+        ports:
+        - containerPort: 9001
+      - image: lazypower/glowing-bear
+        name: glowing-bear
+        ports:
+        - containerPort: 80
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: web-irc
+spec:
+  selector:
+    app: weechat
+  ports:
+    - protocol: TCP
+      port: 9001
+      nodePort: 30061
+  type: NodePort
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: glowing-bear
+spec:
+  selector:
+    app: weechat
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: irc-ingress
+spec:
+  rules:
+  - host: chat.dashome.co
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: glowing-bear
+          servicePort: 80 
