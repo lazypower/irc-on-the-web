@@ -8,13 +8,15 @@ if [ -z "${PASSWORD}" ]; then
   exit 1
 fi
 
-if [ ! -d /root/.weechat/ssl ]
+WEECHAT_HOME=/home/weechat/.weechat
+
+if [ ! -d "${WEECHAT_HOME}/ssl" ]
 then
 	echo "Creating self-signed certificate. This may take a while..."
-	mkdir -p /root/.weechat/ssl/ && \
+	mkdir -p "${WEECHAT_HOME}/ssl/" && \
 	openssl req -nodes -newkey rsa:4096 \
-		-keyout /root/.weechat/ssl/relay.pem -x509 -days 365 \
-		-out /root/.weechat/ssl/relay.pem -subj "/CN=localhost/"
+		-keyout "${WEECHAT_HOME}/ssl/relay.pem" -x509 -days 365 \
+		-out "${WEECHAT_HOME}/ssl/relay.pem" -subj "/CN=localhost/"
 fi
 
 exec "$@"
